@@ -1,0 +1,80 @@
+run:
+  run_name: promptbake_kl_smoke
+  seed: 42
+  device: cpu
+  dtype: float32
+  mode: train_eval
+
+model:
+  base_model_name_or_path: sshleifer/tiny-gpt2
+  tokenizer_name_or_path: sshleifer/tiny-gpt2
+  trust_remote_code: false
+  use_flash_attention: false
+  gradient_checkpointing: false
+
+data:
+  train_path: data/datasets/train.jsonl
+  valid_path: data/datasets/valid.jsonl
+  test_path: data/datasets/test.jsonl
+  preserve_path: data/datasets/preserve.jsonl
+  max_source_length: 128
+  max_target_length: 48
+  prompt_family_spec_path: data/prompt_families/prompt_family_v1.yaml
+  input_template_name: default
+
+prompting:
+  teacher_uses_prompt: true
+  student_uses_prompt: false
+  prompt_field: prompt_text
+  input_field: input_text
+  target_field: target_text
+
+baseline:
+  name: promptbake_kl
+  family_scope: all
+  extension: false
+
+lora:
+  enabled: true
+  r: 4
+  alpha: 8
+  dropout: 0.05
+  target_modules:
+    - c_attn
+    - c_proj
+  bias: none
+  task_type: CAUSAL_LM
+
+train:
+  num_epochs: 5
+  max_steps: 10
+  per_device_train_batch_size: 2
+  per_device_eval_batch_size: 2
+  gradient_accumulation_steps: 1
+  learning_rate: 5.0e-4
+  weight_decay: 0.0
+  warmup_ratio: 0.0
+  max_grad_norm: 1.0
+  teacher_forward_mode: online
+  log_every_n_steps: 1
+
+loss:
+  kl_weight: 1.0
+  delta_weight: 0.0
+  preserve_weight: 0.0
+  temperature: 1.0
+  reduction: mean
+
+eval:
+  paraphrase_split: all
+  max_eval_batches: 2
+  max_new_tokens: 24
+  style_word_limit: 25
+
+logging:
+  level: INFO
+
+output:
+  output_dir: outputs/promptbake_kl_smoke
+  save_resolved_config: true
+  save_predictions: true

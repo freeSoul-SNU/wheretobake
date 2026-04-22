@@ -1,0 +1,35 @@
+families:
+  - family_name: concise
+    description: Produce short answers with only the key point.
+    prompts:
+      - prompt_id: concise_001
+        prompt_text: Answer briefly and only include the key point.
+        split: train
+        paraphrase_split: seen
+        qc_status: approved
+        notes: high lexical overlap exemplar
+      - prompt_id: concise_004
+        prompt_text: Use the minimum explanation needed.
+        split: test
+        paraphrase_split: unseen
+        qc_status: approved
+        notes: low lexical overlap exemplar
+  - family_name: formal
+    description: Use a formal and professional tone.
+    prompts:
+      - prompt_id: formal_001
+        prompt_text: Respond in a formal and professional tone.
+        split: train
+        paraphrase_split: seen
+        qc_status: approved
+        notes: formal baseline
+  - family_name: step_by_step
+    description: Explain solutions as ordered steps.
+    prompts:
+      - prompt_id: step_001
+        prompt_text: Explain the solution step by step.
+        split: train
+        paraphrase_split: seen
+        qc_status: approved
+        notes: procedural exemplar
+

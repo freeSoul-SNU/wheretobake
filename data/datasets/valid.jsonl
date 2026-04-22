@@ -1,0 +1,3 @@
+{"example_id":"valid_001","prompt_family":"concise","prompt_id":"concise_003","prompt_text":"Keep the response short and focused on the answer.","input_text":"What is photosynthesis?","target_text":"Photosynthesis is the process plants use to convert light into chemical energy.","split":"valid","paraphrase_split":"seen","qc_status":"approved","notes":"validation concise"}
+{"example_id":"valid_002","prompt_family":"formal","prompt_id":"formal_002","prompt_text":"Provide the reply with formal wording.","input_text":"Acknowledge receipt of a project proposal.","target_text":"Dear colleague, I acknowledge receipt of the project proposal and will review it promptly.","split":"valid","paraphrase_split":"seen","qc_status":"approved","notes":"validation formal"}
+

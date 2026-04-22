@@ -1,0 +1,3 @@
+{"example_id":"preserve_001","input_text":"Name three planets in our solar system.","target_text":"Mercury, Venus, and Earth.","split":"preserve_unrelated","paraphrase_split":"all","notes":"neutral factual input"}
+{"example_id":"preserve_002","input_text":"Translate 'good morning' into Korean.","target_text":"좋은 아침입니다.","split":"preserve_unrelated","paraphrase_split":"all","notes":"neutral translation input"}
+

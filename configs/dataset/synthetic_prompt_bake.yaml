@@ -1,0 +1,16 @@
+data:
+  train_path: data/datasets/train.jsonl
+  valid_path: data/datasets/valid.jsonl
+  test_path: data/datasets/test.jsonl
+  preserve_path: data/datasets/preserve.jsonl
+  max_source_length: 128
+  max_target_length: 48
+  prompt_family_spec_path: data/prompt_families/prompt_family_v1.yaml
+  input_template_name: default
+
+eval:
+  paraphrase_split: all
+  max_eval_batches: 2
+  max_new_tokens: 24
+  style_word_limit: 25
+

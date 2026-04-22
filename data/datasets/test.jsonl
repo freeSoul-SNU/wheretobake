@@ -1,0 +1,3 @@
+{"example_id":"test_001","prompt_family":"concise","prompt_id":"concise_004","prompt_text":"Use the minimum explanation needed.","input_text":"What is a solar eclipse?","target_text":"A solar eclipse occurs when the Moon blocks the Sun from Earth's view.","split":"test","paraphrase_split":"unseen","qc_status":"approved","notes":"low lexical overlap"}
+{"example_id":"test_002","prompt_family":"step_by_step","prompt_id":"step_002","prompt_text":"Break the answer into clear steps.","input_text":"How do you plant a seed?","target_text":"1. Place soil in a pot. 2. Insert the seed. 3. Cover lightly. 4. Water and provide light.","split":"test","paraphrase_split":"unseen","qc_status":"approved","notes":"unseen procedural"}
+
