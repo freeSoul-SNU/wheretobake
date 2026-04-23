@@ -4,22 +4,27 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${ROOT_DIR}"
 
+echo "[M2] Generating long-form dataset if needed"
+PYTHONPATH=src python3 scripts/generate_longform_dataset.py
+
+echo "[M2] Running prompt similarity inspection"
+PYTHONPATH=src python3 scripts/run_prompt_similarity.py --config configs/baselines/prompt_similarity_longform.yaml
+
 cat <<'EOF'
-[M2] Localization pipeline is not fully implemented yet.
+[M2] Partial localization output generated.
 
-Current status:
-- hooks/selection scaffolding exists
-- full localization cache, within/across-family stability, and causal scoring are not implemented
+What this stage currently gives you:
+- prompt-induced module delta collection
+- within-family similarity
+- across-family similarity
+- preview stability score
 
-Planned entrypoints for this stage should eventually cover:
-- human-defined prompt family loader
-- module delta extraction
-- within_family_consistency
-- across_family_similarity
-- stability_score and causal_score logging
+What is still missing:
+- causal score
+- full localization cache
+- automatic selective LoRA placement from localization output
 
-Please implement M2 components first, then replace this guard script with a runnable pipeline.
+Artifacts:
+- outputs/localization/prompt_similarity_longform.json
+- outputs/localization/prompt_similarity_longform.csv
 EOF
-
-exit 1
-

@@ -134,6 +134,22 @@ PYTHONPATH=src python3 scripts/summarize_results.py --root-dir outputs --output-
 ```
 
 추가 데이터 설계 원칙은 `docs/DATASET_GUIDE.md`를 따른다.
+현재 구현 범위와 미구현 범위는 `docs/IMPLEMENTATION_STATUS.md`를,
+코드 동작 흐름은 `docs/CODE_WALKTHROUGH.md`를 보면 된다.
+
+### Prompt Similarity 확인
+
+같은 family prompt와 다른 family prompt가 model 내부 delta 기준으로 얼마나 비슷한지 보려면:
+
+```bash
+PYTHONPATH=src python3 scripts/generate_longform_dataset.py
+PYTHONPATH=src python3 scripts/run_prompt_similarity.py --config configs/baselines/prompt_similarity_longform.yaml
+```
+
+출력:
+
+- `outputs/localization/prompt_similarity_longform.json`
+- `outputs/localization/prompt_similarity_longform.csv`
 
 ### Stage 실행 스크립트
 

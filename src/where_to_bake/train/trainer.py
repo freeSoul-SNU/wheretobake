@@ -66,6 +66,28 @@ def _maybe_save_predictions(predictions: list[dict[str, Any]], output_dir: Path)
     return str(path)
 
 
+def _save_selection_debug(
+    output_dir: Path,
+    config: dict[str, Any],
+    selection_result: Any,
+    dataset_summary: dict[str, int],
+) -> str:
+    """Persist module-selection details for inspection."""
+
+    path = output_dir / "selection_debug.json"
+    payload = {
+        "baseline_name": config["baseline"]["name"],
+        "family_scope": config["baseline"].get("family_scope", "all"),
+        "selection_strategy": selection_result.selection_strategy,
+        "selection_budget": selection_result.selection_budget,
+        "selected_modules": selection_result.target_modules,
+        "selection_notes": selection_result.notes,
+        "dataset_summary": dataset_summary,
+    }
+    save_json(path, payload)
+    return str(path)
+
+
 def run_experiment(config: dict[str, Any], override_mode: str | None = None) -> dict[str, Any]:
     """Train and evaluate a registered baseline."""
 
@@ -110,6 +132,11 @@ def run_experiment(config: dict[str, Any], override_mode: str | None = None) -> 
             batch_size=config["train"]["per_device_eval_batch_size"],
         )
 
+    dataset_summary = {
+        "train_examples": len(train_dataset),
+        "valid_examples": len(valid_dataset),
+        "test_examples": len(test_dataset),
+    }
     teacher_probe_model, student_probe_base = load_base_models(config, AutoModelForCausalLM)
     teacher_probe_model.to(config["run"]["device"])
     student_probe_base.to(config["run"]["device"])
@@ -125,6 +152,72 @@ def run_experiment(config: dict[str, Any], override_mode: str | None = None) -> 
     del student_probe_base
     if torch.cuda.is_available() and config["run"]["device"].startswith("cuda"):
         torch.cuda.empty_cache()
+    selection_debug_path = _save_selection_debug(
+        output_dir=output_dir,
+        config=config,
+        selection_result=selection_result,
+        dataset_summary=dataset_summary,
+    )
+
+    if mode == "localization_only":
+        result = {
+            "run_name": config["run"]["run_name"],
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+            "git_commit": "unknown",
+            "baseline_name": config["baseline"]["name"],
+            "model_name": config["model"]["base_model_name_or_path"],
+            "seed": config["run"]["seed"],
+            "prompt_family": config["baseline"].get("family_scope", "all"),
+            "paraphrase_split": config["eval"].get("paraphrase_split", "all"),
+            "trainable_params": 0,
+            "train_runtime_sec": 0.0,
+            "peak_memory_mb": 0.0,
+            "teacher_fidelity_metrics": {
+                "token_kl": None,
+                "next_token_agreement": None,
+                "task_accuracy": None,
+                "task_reward": None,
+                "style_agreement": None,
+                "teacher_match_rate": None,
+            },
+            "preservation_metrics": {
+                "base_drift_kl": None,
+                "unrelated_input_drift": None,
+                "non_target_family_drop": None,
+                "general_eval_drop": None,
+            },
+            "efficiency_metrics": {
+                "trainable_params": 0,
+                "estimated_adapter_bytes": 0,
+                "train_tokens_per_sec": 0.0,
+                "eval_tokens_per_sec": 0.0,
+                "inference_latency_ms": None,
+            },
+            "config_path": config["config_path"],
+            "resolved_config_path": str(output_dir / "resolved_config.yaml"),
+            "selected_modules": selection_result.target_modules,
+            "selection_strategy": selection_result.selection_strategy,
+            "selection_budget": selection_result.selection_budget,
+            "loss_weights": {
+                "kl_weight": config["loss"]["kl_weight"],
+                "delta_weight": config["loss"]["delta_weight"],
+                "preserve_weight": config["loss"]["preserve_weight"],
+            },
+            "dataset_summary": dataset_summary,
+            "eval_summary_path": selection_debug_path,
+            "notes": {
+                "mode": mode,
+                "last_train_loss": None,
+                "implemented_baseline": config["baseline"]["name"],
+                "environment": {
+                    "device": config["run"]["device"],
+                },
+                "selection_notes": selection_result.notes,
+            },
+        }
+        validate_result_schema(result)
+        save_json(output_dir / "result.json", result)
+        return result
 
     teacher_model, student_model, tokenizer, torch = create_teacher_student_pair(
         config=config,
@@ -255,12 +348,8 @@ def run_experiment(config: dict[str, Any], override_mode: str | None = None) -> 
             "delta_weight": config["loss"]["delta_weight"],
             "preserve_weight": config["loss"]["preserve_weight"],
         },
-        "dataset_summary": {
-            "train_examples": len(train_dataset),
-            "valid_examples": len(valid_dataset),
-            "test_examples": len(test_dataset),
-        },
-        "eval_summary_path": prediction_path,
+        "dataset_summary": dataset_summary,
+        "eval_summary_path": prediction_path or selection_debug_path,
         "notes": {
             "mode": mode,
             "last_train_loss": last_train_loss,

@@ -1,0 +1,34 @@
+defaults:
+  - ../base_smoke.yaml
+  - ../dataset/longform_prompt_bake.yaml
+  - ../models/tiny_gpt2.yaml
+
+run:
+  run_name: prompt_similarity_longform
+  mode: localization_only
+
+baseline:
+  name: promptbake_kl
+  family_scope: all
+  extension: false
+
+localization:
+  enabled: true
+  alpha: 0.5
+  splits:
+    - train
+    - valid
+    - test
+  paraphrase_split: all
+  candidate_module_suffixes:
+    - c_attn
+    - c_proj
+    - c_fc
+  max_records: 24
+  output_prefix: outputs/localization/prompt_similarity_longform
+
+output:
+  output_dir: outputs/prompt_similarity_longform
+  save_resolved_config: true
+  save_predictions: false
+

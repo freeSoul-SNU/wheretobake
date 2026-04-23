@@ -78,6 +78,21 @@
 - 완료 기준:
   - `bash scripts/run_stage.sh <stage>` 형식으로 stage별 진입점이 제공된다.
 
+### 2026-04-23 M2 similarity inspection
+
+- 배경:
+  - 사용자 요구사항상, 같은 family prompt와 다른 family prompt가 실제로 얼마나 비슷한 반응을 만드는지 먼저 확인할 수 있어야 한다.
+- 목표:
+  - prompt-induced delta를 수집하고 within-family / across-family cosine similarity를 저장하는 최소 M2 도구를 추가한다.
+- 단계별 체크리스트:
+  - [x] prompt-induced delta 수집 코드 추가
+  - [x] within-family similarity 집계 추가
+  - [x] across-family similarity 집계 추가
+  - [x] preview stability score 저장 추가
+  - [ ] causal score 추가
+- 완료 기준:
+  - 같은 family prompt와 다른 family prompt의 유사도 차이를 JSON/CSV로 저장할 수 있다.
+
 ---
 
 ## 연구 구현의 큰 흐름
