@@ -1,0 +1,35 @@
+defaults:
+  - ../base_smoke.yaml
+  - ../dataset/longform_prompt_bake.yaml
+  - ../models/tiny_gpt2.yaml
+
+run:
+  run_name: random_subset_kl_longform
+
+baseline:
+  name: random_subset_kl
+  family_scope: all
+  extension: false
+
+train:
+  num_epochs: 2
+  max_steps: 60
+  per_device_train_batch_size: 2
+  per_device_eval_batch_size: 2
+  gradient_accumulation_steps: 1
+  learning_rate: 2.0e-4
+  train_paraphrase_split: seen
+
+selection:
+  candidate_module_suffixes:
+    - c_attn
+    - c_proj
+    - c_fc
+  budget: 2
+  probe_examples: 12
+
+output:
+  output_dir: outputs/random_subset_kl_longform
+  save_resolved_config: true
+  save_predictions: true
+

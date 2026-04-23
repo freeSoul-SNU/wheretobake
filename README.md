@@ -101,6 +101,67 @@ python3 -m pip install -r requirements.txt
 PYTHONPATH=src python3 -m where_to_bake.run --config configs/baselines/promptbake_kl.yaml
 ```
 
+`transformers`의 최신 보안 정책 때문에, 이 저장소의 기본 smoke config는 모델을 `safetensors` 형식으로만 로드하도록 설정되어 있다.
+만약 특정 모델이 `safetensors`를 제공하지 않으면, `torch>=2.6`으로 올리거나 `safetensors`가 있는 모델로 바꾸는 편이 안전하다.
+
+### Long-Form Dataset 생성
+
+```bash
+PYTHONPATH=src python3 scripts/generate_longform_dataset.py
+```
+
+생성 결과는 `data/datasets/longform_v1/`에 저장된다.
+이 데이터는 기존 smoke용 단문 dataset보다 긴 입력과 family별 요약 target을 포함하므로 더 넓은 실험용 예시로 사용할 수 있다.
+
+### Long-Form Baseline 실행
+
+```bash
+PYTHONPATH=src python3 -m where_to_bake.run --config configs/baselines/promptbake_kl_longform.yaml
+PYTHONPATH=src python3 -m where_to_bake.run --config configs/baselines/random_subset_kl_longform.yaml
+PYTHONPATH=src python3 -m where_to_bake.run --config configs/baselines/all_layer_lora_kl_longform.yaml
+```
+
+GPU가 있으면:
+
+```bash
+PYTHONPATH=src python3 -m where_to_bake.run --config configs/baselines/promptbake_kl_longform_gpu.yaml
+```
+
+### 결과 요약
+
+```bash
+PYTHONPATH=src python3 scripts/summarize_results.py --root-dir outputs --output-prefix outputs/summary/results_summary
+```
+
+추가 데이터 설계 원칙은 `docs/DATASET_GUIDE.md`를 따른다.
+
+### Stage 실행 스크립트
+
+각 milestone별 대표 실행 스크립트:
+
+```bash
+bash scripts/run_stage_m0.sh
+bash scripts/run_stage_m1.sh
+bash scripts/run_stage_m4.sh
+```
+
+단일 dispatcher:
+
+```bash
+bash scripts/run_stage.sh m0
+bash scripts/run_stage.sh m1
+bash scripts/run_stage.sh m2
+bash scripts/run_stage.sh m3
+bash scripts/run_stage.sh m4
+```
+
+주의:
+
+- `m0`: 최소 smoke baseline 실행
+- `m1`: long-form dataset 생성, main baseline 일부 비교 실행, summary 생성
+- `m2`, `m3`: 아직 미구현 stage라 안내 메시지와 함께 종료
+- `m4`: 현재 가능한 result summary 자동화만 수행
+
 ---
 
 ## 첫 구현 대상

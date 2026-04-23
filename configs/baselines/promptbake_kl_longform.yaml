@@ -1,0 +1,34 @@
+defaults:
+  - ../base_smoke.yaml
+  - ../dataset/longform_prompt_bake.yaml
+  - ../models/tiny_gpt2.yaml
+
+run:
+  run_name: promptbake_kl_longform
+
+baseline:
+  name: promptbake_kl
+  family_scope: all
+  extension: false
+
+train:
+  num_epochs: 2
+  max_steps: 60
+  per_device_train_batch_size: 2
+  per_device_eval_batch_size: 2
+  gradient_accumulation_steps: 1
+  learning_rate: 2.0e-4
+  train_paraphrase_split: seen
+
+eval:
+  paraphrase_split: all
+  valid_paraphrase_split: seen
+  max_eval_batches: 16
+  max_new_tokens: 96
+  style_word_limit: 48
+
+output:
+  output_dir: outputs/promptbake_kl_longform
+  save_resolved_config: true
+  save_predictions: true
+

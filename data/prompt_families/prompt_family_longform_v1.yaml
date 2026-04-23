@@ -1,0 +1,101 @@
+families:
+  - family_name: concise
+    description: Summarize the passage briefly with only the central information.
+    prompts:
+      - prompt_id: concise_long_train_001
+        prompt_text: Summarize the passage in one or two direct sentences.
+        split: train
+        paraphrase_split: seen
+        qc_status: approved
+        notes: concise train prompt
+      - prompt_id: concise_long_train_002
+        prompt_text: Give only the essential summary without extra detail.
+        split: train
+        paraphrase_split: seen
+        qc_status: approved
+        notes: concise train paraphrase
+      - prompt_id: concise_long_valid_001
+        prompt_text: Provide a short summary focused on the key outcome.
+        split: valid
+        paraphrase_split: seen
+        qc_status: approved
+        notes: concise valid prompt
+      - prompt_id: concise_long_test_seen_001
+        prompt_text: Respond with a compact summary of the main point.
+        split: test
+        paraphrase_split: seen
+        qc_status: approved
+        notes: concise test seen
+      - prompt_id: concise_long_test_unseen_001
+        prompt_text: Reduce the passage to the shortest accurate summary.
+        split: test
+        paraphrase_split: unseen
+        qc_status: approved
+        notes: concise test unseen
+  - family_name: formal
+    description: Summarize the passage in a formal and professional register.
+    prompts:
+      - prompt_id: formal_long_train_001
+        prompt_text: Summarize the passage in a formal and professional tone.
+        split: train
+        paraphrase_split: seen
+        qc_status: approved
+        notes: formal train prompt
+      - prompt_id: formal_long_train_002
+        prompt_text: Provide a professionally worded summary of the passage.
+        split: train
+        paraphrase_split: seen
+        qc_status: approved
+        notes: formal train paraphrase
+      - prompt_id: formal_long_valid_001
+        prompt_text: Write a concise but formal summary.
+        split: valid
+        paraphrase_split: seen
+        qc_status: approved
+        notes: formal valid prompt
+      - prompt_id: formal_long_test_seen_001
+        prompt_text: Compose the summary in formal language.
+        split: test
+        paraphrase_split: seen
+        qc_status: approved
+        notes: formal test seen
+      - prompt_id: formal_long_test_unseen_001
+        prompt_text: Present the main findings in a professional register.
+        split: test
+        paraphrase_split: unseen
+        qc_status: approved
+        notes: formal test unseen
+  - family_name: step_by_step
+    description: Summarize the passage as ordered steps or sequenced points.
+    prompts:
+      - prompt_id: step_long_train_001
+        prompt_text: Summarize the passage as numbered steps.
+        split: train
+        paraphrase_split: seen
+        qc_status: approved
+        notes: step train prompt
+      - prompt_id: step_long_train_002
+        prompt_text: Present the main events as a short sequence of steps.
+        split: train
+        paraphrase_split: seen
+        qc_status: approved
+        notes: step train paraphrase
+      - prompt_id: step_long_valid_001
+        prompt_text: Explain the passage through clear ordered steps.
+        split: valid
+        paraphrase_split: seen
+        qc_status: approved
+        notes: step valid prompt
+      - prompt_id: step_long_test_seen_001
+        prompt_text: Break the summary into numbered stages.
+        split: test
+        paraphrase_split: seen
+        qc_status: approved
+        notes: step test seen
+      - prompt_id: step_long_test_unseen_001
+        prompt_text: Recast the main points as a brief sequence of steps.
+        split: test
+        paraphrase_split: unseen
+        qc_status: approved
+        notes: step test unseen
+

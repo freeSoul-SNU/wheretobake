@@ -2,18 +2,23 @@
 
 from __future__ import annotations
 
-import json
 import logging
-import math
 import time
 from pathlib import Path
 from typing import Any
 
 from torch.utils.data import DataLoader
 
-from where_to_bake.data import DistillationDataset, PromptDistillationCollator, load_jsonl_records
+from where_to_bake.baselines.selection import resolve_baseline_selection
+from where_to_bake.data import (
+    DistillationDataset,
+    PromptDistillationCollator,
+    filter_records,
+    load_jsonl_records,
+)
 from where_to_bake.eval import evaluate_model
 from where_to_bake.models import create_teacher_student_pair
+from where_to_bake.models.wrapper import _require_hf_stack, load_base_models, load_tokenizer
 from where_to_bake.train.losses import compute_token_kl
 from where_to_bake.utils.io import save_json, save_resolved_config, validate_result_schema
 from where_to_bake.utils.metrics import estimate_adapter_bytes, get_model_trainable_params
@@ -26,8 +31,15 @@ def _build_dataset(
     tokenizer: Any,
     config: dict[str, Any],
     split_path: str,
+    paraphrase_split: str | None = None,
+    family_scope: str | None = None,
 ) -> DistillationDataset:
     records = load_jsonl_records(split_path)
+    records = filter_records(
+        records=records,
+        family_scope=family_scope or config["baseline"].get("family_scope", "all"),
+        paraphrase_split=paraphrase_split,
+    )
     return DistillationDataset(
         tokenizer=tokenizer,
         records=records,
@@ -55,29 +67,70 @@ def _maybe_save_predictions(predictions: list[dict[str, Any]], output_dir: Path)
 
 
 def run_experiment(config: dict[str, Any], override_mode: str | None = None) -> dict[str, Any]:
-    """Train and evaluate the M0 prompt baking baseline."""
+    """Train and evaluate a registered baseline."""
 
     mode = override_mode or config["run"]["mode"]
     output_dir = Path(config["output"]["output_dir"]).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
     set_seed(config["run"]["seed"])
-
-    teacher_model, student_model, tokenizer, torch = create_teacher_student_pair(
-        config=config,
-        device=config["run"]["device"],
-    )
     save_resolved_config(config, output_dir / "resolved_config.yaml")
 
-    train_dataset = _build_dataset(tokenizer, config, config["data"]["train_path"])
-    valid_dataset = _build_dataset(tokenizer, config, config["data"]["valid_path"])
-    test_dataset = _build_dataset(tokenizer, config, config["data"]["test_path"])
+    torch, AutoModelForCausalLM, AutoTokenizer, _peft_items = _require_hf_stack()
+    tokenizer = load_tokenizer(config, AutoTokenizer)
+
+    train_dataset = _build_dataset(
+        tokenizer,
+        config,
+        config["data"]["train_path"],
+        paraphrase_split=config["train"].get("train_paraphrase_split", "seen"),
+    )
+    valid_dataset = _build_dataset(
+        tokenizer,
+        config,
+        config["data"]["valid_path"],
+        paraphrase_split=config["eval"].get("valid_paraphrase_split", "seen"),
+    )
+    test_dataset = _build_dataset(
+        tokenizer,
+        config,
+        config["data"]["test_path"],
+        paraphrase_split=config["eval"].get("paraphrase_split", "all"),
+    )
     preserve_loader = None
     if config["data"].get("preserve_path"):
-        preserve_dataset = _build_dataset(tokenizer, config, config["data"]["preserve_path"])
+        preserve_dataset = _build_dataset(
+            tokenizer,
+            config,
+            config["data"]["preserve_path"],
+            paraphrase_split="all",
+            family_scope="all",
+        )
         preserve_loader = _build_dataloader(
             preserve_dataset,
             batch_size=config["train"]["per_device_eval_batch_size"],
         )
+
+    teacher_probe_model, student_probe_base = load_base_models(config, AutoModelForCausalLM)
+    teacher_probe_model.to(config["run"]["device"])
+    student_probe_base.to(config["run"]["device"])
+    selection_result = resolve_baseline_selection(
+        config=config,
+        teacher_model=teacher_probe_model,
+        base_model=student_probe_base,
+        train_dataset=train_dataset,
+        device=torch.device(config["run"]["device"]),
+        torch=torch,
+    )
+    del teacher_probe_model
+    del student_probe_base
+    if torch.cuda.is_available() and config["run"]["device"].startswith("cuda"):
+        torch.cuda.empty_cache()
+
+    teacher_model, student_model, tokenizer, torch = create_teacher_student_pair(
+        config=config,
+        device=config["run"]["device"],
+        target_modules=selection_result.target_modules,
+    )
 
     train_loader = _build_dataloader(
         train_dataset,
@@ -194,9 +247,9 @@ def run_experiment(config: dict[str, Any], override_mode: str | None = None) -> 
         },
         "config_path": config["config_path"],
         "resolved_config_path": str(output_dir / "resolved_config.yaml"),
-        "selected_modules": None,
-        "selection_strategy": None,
-        "selection_budget": None,
+        "selected_modules": selection_result.target_modules,
+        "selection_strategy": selection_result.selection_strategy,
+        "selection_budget": selection_result.selection_budget,
         "loss_weights": {
             "kl_weight": config["loss"]["kl_weight"],
             "delta_weight": config["loss"]["delta_weight"],
@@ -211,13 +264,13 @@ def run_experiment(config: dict[str, Any], override_mode: str | None = None) -> 
         "notes": {
             "mode": mode,
             "last_train_loss": last_train_loss,
-            "implemented_baseline": "promptbake_kl",
+            "implemented_baseline": config["baseline"]["name"],
             "environment": {
                 "device": config["run"]["device"],
             },
+            "selection_notes": selection_result.notes,
         },
     }
     validate_result_schema(result)
     save_json(output_dir / "result.json", result)
     return result
-

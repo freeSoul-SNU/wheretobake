@@ -14,6 +14,18 @@ families:
         paraphrase_split: unseen
         qc_status: approved
         notes: low lexical overlap exemplar
+      - prompt_id: concise_005
+        prompt_text: Give only the essential answer.
+        split: train
+        paraphrase_split: seen
+        qc_status: approved
+        notes: concise train expansion
+      - prompt_id: concise_008
+        prompt_text: Answer in the shortest accurate form.
+        split: test
+        paraphrase_split: unseen
+        qc_status: approved
+        notes: concise unseen expansion
   - family_name: formal
     description: Use a formal and professional tone.
     prompts:
@@ -23,6 +35,18 @@ families:
         paraphrase_split: seen
         qc_status: approved
         notes: formal baseline
+      - prompt_id: formal_003
+        prompt_text: Answer with formal phrasing and professional diction.
+        split: train
+        paraphrase_split: seen
+        qc_status: approved
+        notes: formal train expansion
+      - prompt_id: formal_006
+        prompt_text: Compose the response in formal language.
+        split: test
+        paraphrase_split: unseen
+        qc_status: approved
+        notes: formal unseen expansion
   - family_name: step_by_step
     description: Explain solutions as ordered steps.
     prompts:
@@ -32,4 +56,15 @@ families:
         paraphrase_split: seen
         qc_status: approved
         notes: procedural exemplar
-
+      - prompt_id: step_004
+        prompt_text: Organize the explanation into numbered steps.
+        split: train
+        paraphrase_split: seen
+        qc_status: approved
+        notes: step train expansion
+      - prompt_id: step_002
+        prompt_text: Break the answer into clear steps.
+        split: test
+        paraphrase_split: unseen
+        qc_status: approved
+        notes: step unseen expansion

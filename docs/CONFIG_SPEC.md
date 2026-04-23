@@ -32,6 +32,20 @@ configs/
 
 상속/병합 방식을 쓰더라도 최종 resolved config는 한 파일로 저장 가능해야 한다.
 
+실험용으로는 아래처럼 smoke용 base와 GPU/longform override를 분리해 두는 구성이 권장된다.
+
+```text
+configs/
+├── base_smoke.yaml
+├── base_gpu.yaml
+├── dataset/
+│   ├── synthetic_prompt_bake.yaml
+│   └── longform_prompt_bake.yaml
+└── baselines/
+    ├── promptbake_kl.yaml
+    └── promptbake_kl_longform_gpu.yaml
+```
+
 ---
 
 ## 3. 최상위 필수 섹션
@@ -87,6 +101,7 @@ model:
   base_model_name_or_path: meta-llama/Meta-Llama-3-8B-Instruct
   tokenizer_name_or_path: meta-llama/Meta-Llama-3-8B-Instruct
   trust_remote_code: false
+  use_safetensors: true
   use_flash_attention: false
   gradient_checkpointing: true
 ```
@@ -95,6 +110,15 @@ model:
 
 - `base_model_name_or_path`
 - `tokenizer_name_or_path`
+
+권장 필드:
+
+- `use_safetensors`
+
+보안 주의:
+
+- `transformers`는 최신 버전에서 `torch<2.6` 환경의 `torch.load` 기반 체크포인트 로딩을 제한할 수 있다.
+- 가능한 경우 `use_safetensors: true`를 명시하고, `.safetensors` 파일이 있는 모델을 사용한다.
 
 ---
 
@@ -386,4 +410,3 @@ output:
   output_dir: outputs/promptbake_kl_smoke
   result_json_path: outputs/promptbake_kl_smoke/result.json
 ```
-

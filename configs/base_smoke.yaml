@@ -9,6 +9,7 @@ model:
   base_model_name_or_path: sshleifer/tiny-gpt2
   tokenizer_name_or_path: sshleifer/tiny-gpt2
   trust_remote_code: false
+  use_safetensors: true
   use_flash_attention: false
   gradient_checkpointing: false
 
@@ -41,9 +42,20 @@ lora:
   dropout: 0.05
   target_modules:
     - c_attn
-    - c_proj
   bias: none
   task_type: CAUSAL_LM
+
+selection:
+  candidate_module_suffixes:
+    - c_attn
+    - c_proj
+    - c_fc
+  full_target_module_suffixes:
+    - c_attn
+    - c_proj
+    - c_fc
+  budget: 2
+  probe_examples: 6
 
 train:
   num_epochs: 5
@@ -57,6 +69,7 @@ train:
   max_grad_norm: 1.0
   teacher_forward_mode: online
   log_every_n_steps: 1
+  train_paraphrase_split: seen
 
 loss:
   kl_weight: 1.0
@@ -67,6 +80,7 @@ loss:
 
 eval:
   paraphrase_split: all
+  valid_paraphrase_split: seen
   max_eval_batches: 2
   max_new_tokens: 24
   style_word_limit: 25

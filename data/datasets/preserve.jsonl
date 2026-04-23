@@ -1,3 +1,6 @@
 {"example_id":"preserve_001","input_text":"Name three planets in our solar system.","target_text":"Mercury, Venus, and Earth.","split":"preserve_unrelated","paraphrase_split":"all","notes":"neutral factual input"}
 {"example_id":"preserve_002","input_text":"Translate 'good morning' into Korean.","target_text":"좋은 아침입니다.","split":"preserve_unrelated","paraphrase_split":"all","notes":"neutral translation input"}
-
+{"example_id":"preserve_003","input_text":"What is 7 plus 5?","target_text":"12","split":"preserve_unrelated","paraphrase_split":"all","notes":"neutral arithmetic"}
+{"example_id":"preserve_004","input_text":"List two mammals.","target_text":"A dog and a whale.","split":"preserve_unrelated","paraphrase_split":"all","notes":"neutral listing"}
+{"example_id":"preserve_005","input_text":"What does H2O refer to?","target_text":"Water.","split":"preserve_unrelated","paraphrase_split":"all","notes":"neutral chemistry"}
+{"example_id":"preserve_006","input_text":"Name the capital of Japan.","target_text":"Tokyo.","split":"preserve_unrelated","paraphrase_split":"all","notes":"neutral geography"}

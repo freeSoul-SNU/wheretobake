@@ -29,6 +29,55 @@
 - 리스크:
   - 현재 환경의 Python은 user-site가 기본 비활성화라서, 검증 시에는 user-site 경로를 `PYTHONPATH`에 명시했다. 일반 사용 환경에서는 venv 또는 표준 site-packages 설치를 권장한다.
 
+### 2026-04-22 M1 harness expansion
+
+- 배경:
+  - 현재 구현은 `promptbake_kl` 단일 baseline과 tiny synthetic smoke에 머물러 있어 baseline 비교와 폭넓은 검증 요구를 만족하지 못한다.
+- 목표:
+  - 최소 3개 이상의 main baseline이 같은 runner에서 train/eval/result 저장까지 동작하게 하고, synthetic 검증 범위도 seen/unseen 및 여러 family를 포함하도록 넓힌다.
+- 단계별 체크리스트:
+  - [ ] baseline별 selection/build 로직 추가
+  - [ ] main baseline config 3종 이상 추가
+  - [ ] broader synthetic dataset 추가
+  - [ ] 다중 baseline smoke/integration test 추가
+  - [ ] summary runner 또는 smoke script 추가
+- 완료 기준:
+  - baseline 이름만 바꿔도 적어도 `promptbake_kl`, `all_layer_lora_kl`, `random_subset_kl`가 실행된다.
+  - 더 넓은 synthetic split에서 결과 JSON이 baseline별로 저장된다.
+- 리스크:
+  - heuristic baseline의 selection 정의는 초기 버전이라 논문용 최종 정의와 다를 수 있으므로 config와 notes에 명확히 남겨야 한다.
+
+### 2026-04-23 long-form experiment tooling
+
+- 배경:
+  - 기존 synthetic dataset은 smoke 확인에는 충분했지만, long-form summarization이나 broader baseline 비교를 하기에는 너무 작고 짧다.
+- 목표:
+  - seed corpus 기반으로 long-form dataset을 재생성할 수 있게 하고, GPU/longform config 및 result summary utility를 추가한다.
+- 단계별 체크리스트:
+  - [x] long-form seed corpus와 prompt family spec 추가
+  - [x] dataset generator 추가
+  - [x] long-form experiment config 추가
+  - [x] result summary script 추가
+  - [x] dataset generation / summary test 추가
+- 완료 기준:
+  - `scripts/generate_longform_dataset.py`로 long-form JSONL을 재생성할 수 있다.
+  - `scripts/summarize_results.py`로 outputs 아래 result.json을 요약할 수 있다.
+
+### 2026-04-23 stage runner scripts
+
+- 배경:
+  - milestone별로 어떤 명령을 실행해야 하는지 README와 docs에 흩어져 있어, stage 단위 실행 동선이 불명확했다.
+- 목표:
+  - M0~M4에 대응하는 shell script를 두고, 현재 구현된 stage는 바로 실행되게 하며 미구현 stage는 명확히 안내한다.
+- 단계별 체크리스트:
+  - [x] M0 runner script 추가
+  - [x] M1 runner script 추가
+  - [x] M2/M3 guard script 추가
+  - [x] M4 summary runner script 추가
+  - [x] stage dispatcher script 추가
+- 완료 기준:
+  - `bash scripts/run_stage.sh <stage>` 형식으로 stage별 진입점이 제공된다.
+
 ---
 
 ## 연구 구현의 큰 흐름
@@ -128,11 +177,11 @@
 
 #### 작업 항목
 
-- [ ] baseline registry 설계
-- [ ] baseline 공통 config schema 정의
-- [ ] baseline별 train/eval entrypoint 통일
-- [ ] 공통 evaluator 연결
-- [ ] baseline 결과 저장 포맷 통일
+- [x] baseline registry 설계
+- [x] baseline 공통 config schema 정의
+- [x] baseline별 train/eval entrypoint 통일
+- [x] 공통 evaluator 연결
+- [x] baseline 결과 저장 포맷 통일
 - [ ] summary CSV/JSON 병합 유틸 작성
 - [ ] main baseline 3종 이상 smoke test 성공
 

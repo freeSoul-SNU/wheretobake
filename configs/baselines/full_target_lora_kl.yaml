@@ -1,0 +1,29 @@
+defaults:
+  - ../base_smoke.yaml
+  - ../models/tiny_gpt2.yaml
+  - ../dataset/synthetic_prompt_bake.yaml
+
+run:
+  run_name: full_target_lora_kl_smoke
+
+baseline:
+  name: full_target_lora_kl
+  family_scope: all
+  extension: false
+
+selection:
+  candidate_module_suffixes:
+    - c_attn
+    - c_proj
+    - c_fc
+  full_target_module_suffixes:
+    - c_attn
+    - c_proj
+    - c_fc
+  budget: 3
+  probe_examples: 6
+
+output:
+  output_dir: outputs/full_target_lora_kl_smoke
+  save_resolved_config: true
+  save_predictions: true

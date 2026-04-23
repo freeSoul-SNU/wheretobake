@@ -25,31 +25,31 @@ BASELINE_REGISTRY = {
     "full_target_lora_kl": BaselineSpec(
         name="full_target_lora_kl",
         extension=False,
-        implemented=False,
+        implemented=True,
         description="Full target-module LoRA with KL only.",
     ),
     "all_layer_lora_kl": BaselineSpec(
         name="all_layer_lora_kl",
         extension=False,
-        implemented=False,
+        implemented=True,
         description="All-layer LoRA with KL only.",
     ),
     "random_subset_kl": BaselineSpec(
         name="random_subset_kl",
         extension=False,
-        implemented=False,
+        implemented=True,
         description="Random module subset with KL only.",
     ),
     "magnitude_topk": BaselineSpec(
         name="magnitude_topk",
         extension=False,
-        implemented=False,
+        implemented=True,
         description="Magnitude-based top-k module selection.",
     ),
     "gradient_topk": BaselineSpec(
         name="gradient_topk",
         extension=False,
-        implemented=False,
+        implemented=True,
         description="Gradient-based top-k module selection.",
     ),
     "ours_selective": BaselineSpec(
@@ -80,4 +80,3 @@ def get_baseline(name: str) -> BaselineSpec:
         available = ", ".join(sorted(BASELINE_REGISTRY))
         raise KeyError(f"Unknown baseline '{name}'. Available baselines: {available}")
     return BASELINE_REGISTRY[name]
-

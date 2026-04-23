@@ -25,7 +25,14 @@ class BaselineRegistryTest(unittest.TestCase):
     def test_promptbake_is_implemented(self) -> None:
         self.assertTrue(get_baseline("promptbake_kl").implemented)
 
+    def test_three_main_baselines_are_implemented(self) -> None:
+        for baseline_name in [
+            "promptbake_kl",
+            "all_layer_lora_kl",
+            "random_subset_kl",
+        ]:
+            self.assertTrue(get_baseline(baseline_name).implemented)
+
 
 if __name__ == "__main__":
     unittest.main()
-
