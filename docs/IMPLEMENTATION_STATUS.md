@@ -17,9 +17,13 @@
 - [x] tokenizer loader
 - [x] teacher prompted / student unprompted formatting
 - [x] token-level KL loss
+- [x] teacher no-grad / student grad graph separation
+- [x] shifted causal-LM KL alignment on target prediction positions
 - [x] smoke trainer
+- [x] smoke-train non-zero LoRA grad norm test
 - [x] tiny evaluator
 - [x] result JSON 저장
+- [x] unused delta/preserve loss status reporting
 - [x] `promptbake_kl` smoke run
 
 현재 의미:

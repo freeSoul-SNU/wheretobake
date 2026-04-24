@@ -162,6 +162,23 @@
 - 리스크:
   - 여전히 full causal patching은 아니므로, 최종 selective placement 근거로 바로 쓰기에는 부족하다.
 
+### 2026-04-24 M0 repair only
+
+- 배경:
+  - M0 smoke baseline은 동작했지만, teacher/student grad 경계, causal LM KL shift, smoke train 검증, result 기록이 더 명확해질 필요가 있었다.
+- 목표:
+  - `promptbake_kl` M0 경로만 수리해서 backward 안정성과 result 기록을 신뢰할 수 있게 만든다.
+- 단계별 체크리스트:
+  - [x] teacher forward는 `no_grad`, student/loss는 grad graph 유지하도록 확인
+  - [x] response target prediction 위치에 맞는 KL shift 정렬 수정
+  - [x] 10-step smoke train에서 non-zero LoRA grad norm 검증 테스트 추가
+  - [x] `result.json`에 실제 사용 loss 상태만 기록하도록 수정
+- 완료 기준:
+  - `promptbake_kl` 10-step smoke train에서 `loss.backward()`가 정상 동작한다.
+  - 결과 파일에 `delta`/`preserve`가 `not_used`로 표시된다.
+- 리스크:
+  - M0는 여전히 KL-only baseline이며, delta/preserve loss 본 구현은 아직 없다.
+
 ---
 
 ## 연구 구현의 큰 흐름

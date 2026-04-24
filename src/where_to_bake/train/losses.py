@@ -8,18 +8,18 @@ import torch
 import torch.nn.functional as F
 
 
-def _gather_response_logits(
-    logits: torch.Tensor,
-    response_mask: torch.Tensor,
-) -> torch.Tensor:
-    gathered: list[torch.Tensor] = []
-    for batch_index in range(logits.shape[0]):
-        sample_logits = logits[batch_index][response_mask[batch_index].bool()]
-        if sample_logits.numel():
-            gathered.append(sample_logits)
-    if not gathered:
-        return logits.new_zeros((0, logits.shape[-1]))
-    return torch.cat(gathered, dim=0)
+def shift_response_mask_to_prediction_positions(response_mask: torch.Tensor) -> torch.Tensor:
+    """Shift target-token mask onto causal-LM prediction positions.
+
+    If `response_mask[t] == 1`, the corresponding target token lives at sequence
+    position `t`, but the model predicts it from `logits[t - 1]`. This helper
+    returns a same-shaped boolean mask over logit rows.
+    """
+
+    prediction_mask = torch.zeros_like(response_mask, dtype=torch.bool)
+    if response_mask.shape[-1] > 1:
+        prediction_mask[..., :-1] = response_mask[..., 1:].bool()
+    return prediction_mask
 
 
 def align_student_teacher_logits(
@@ -28,13 +28,15 @@ def align_student_teacher_logits(
     student_response_mask: torch.Tensor,
     teacher_response_mask: torch.Tensor,
 ) -> tuple[torch.Tensor, torch.Tensor]:
-    """Align teacher and student logits over response tokens."""
+    """Align teacher and student logits over shifted causal-LM target positions."""
 
     student_rows: list[torch.Tensor] = []
     teacher_rows: list[torch.Tensor] = []
+    student_prediction_mask = shift_response_mask_to_prediction_positions(student_response_mask)
+    teacher_prediction_mask = shift_response_mask_to_prediction_positions(teacher_response_mask)
     for batch_index in range(student_logits.shape[0]):
-        sample_student = student_logits[batch_index][student_response_mask[batch_index].bool()]
-        sample_teacher = teacher_logits[batch_index][teacher_response_mask[batch_index].bool()]
+        sample_student = student_logits[batch_index][student_prediction_mask[batch_index]]
+        sample_teacher = teacher_logits[batch_index][teacher_prediction_mask[batch_index]]
         shared_length = min(sample_student.shape[0], sample_teacher.shape[0])
         if shared_length > 0:
             student_rows.append(sample_student[:shared_length])
@@ -88,4 +90,3 @@ def compute_token_metrics(
     teacher_tokens = aligned_teacher.argmax(dim=-1)
     agreement = (student_tokens == teacher_tokens).float().mean().item()
     return {"next_token_agreement": agreement}
-

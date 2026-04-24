@@ -27,6 +27,38 @@ from where_to_bake.utils.seed import set_seed
 LOGGER = logging.getLogger(__name__)
 
 
+def _compute_trainable_grad_norm(model: Any) -> float:
+    """Return the global L2 norm over trainable parameter gradients."""
+
+    squared_norm = 0.0
+    for parameter in model.parameters():
+        if parameter.requires_grad and parameter.grad is not None:
+            grad_norm = parameter.grad.detach().float().norm(p=2).item()
+            squared_norm += grad_norm**2
+    return squared_norm**0.5
+
+
+def _build_loss_report(config: dict[str, Any]) -> dict[str, Any]:
+    """Record which losses are actually active in the current run."""
+
+    delta_weight = config["loss"]["delta_weight"]
+    preserve_weight = config["loss"]["preserve_weight"]
+    return {
+        "kl": {
+            "weight": config["loss"]["kl_weight"],
+            "status": "used",
+        },
+        "delta": {
+            "weight": delta_weight,
+            "status": "not_used" if delta_weight == 0.0 else "configured_not_implemented",
+        },
+        "preserve": {
+            "weight": preserve_weight,
+            "status": "not_used" if preserve_weight == 0.0 else "configured_not_implemented",
+        },
+    }
+
+
 def _build_dataset(
     tokenizer: Any,
     config: dict[str, Any],
@@ -198,11 +230,7 @@ def run_experiment(config: dict[str, Any], override_mode: str | None = None) -> 
             "selected_modules": selection_result.target_modules,
             "selection_strategy": selection_result.selection_strategy,
             "selection_budget": selection_result.selection_budget,
-            "loss_weights": {
-                "kl_weight": config["loss"]["kl_weight"],
-                "delta_weight": config["loss"]["delta_weight"],
-                "preserve_weight": config["loss"]["preserve_weight"],
-            },
+            "loss_weights": _build_loss_report(config),
             "dataset_summary": dataset_summary,
             "eval_summary_path": selection_debug_path,
             "notes": {
@@ -213,6 +241,8 @@ def run_experiment(config: dict[str, Any], override_mode: str | None = None) -> 
                     "device": config["run"]["device"],
                 },
                 "selection_notes": selection_result.notes,
+                "max_trainable_grad_norm": 0.0,
+                "nonzero_grad_steps": 0,
             },
         }
         validate_result_schema(result)
@@ -224,6 +254,8 @@ def run_experiment(config: dict[str, Any], override_mode: str | None = None) -> 
         device=config["run"]["device"],
         target_modules=selection_result.target_modules,
     )
+    for parameter in teacher_model.parameters():
+        parameter.requires_grad_(False)
 
     train_loader = _build_dataloader(
         train_dataset,
@@ -248,6 +280,8 @@ def run_experiment(config: dict[str, Any], override_mode: str | None = None) -> 
     train_tokens = 0
     total_steps = 0
     last_train_loss = None
+    max_trainable_grad_norm = 0.0
+    nonzero_grad_steps = 0
     if mode in {"train", "train_eval"}:
         start_time = time.perf_counter()
         student_model.train()
@@ -268,7 +302,7 @@ def run_experiment(config: dict[str, Any], override_mode: str | None = None) -> 
                 with torch.no_grad():
                     teacher_outputs = teacher_model(**teacher_inputs)
                 student_outputs = student_model(**student_inputs)
-                loss = compute_token_kl(
+                loss = config["loss"]["kl_weight"] * compute_token_kl(
                     student_outputs.logits,
                     teacher_outputs.logits,
                     batch["student_response_mask"].to(config["run"]["device"]),
@@ -276,6 +310,10 @@ def run_experiment(config: dict[str, Any], override_mode: str | None = None) -> 
                     temperature=config["loss"]["temperature"],
                 )
                 (loss / grad_accum).backward()
+                grad_norm = _compute_trainable_grad_norm(student_model)
+                max_trainable_grad_norm = max(max_trainable_grad_norm, grad_norm)
+                if grad_norm > 0.0:
+                    nonzero_grad_steps += 1
                 if (total_steps + 1) % grad_accum == 0:
                     torch.nn.utils.clip_grad_norm_(
                         student_model.parameters(),
@@ -343,11 +381,7 @@ def run_experiment(config: dict[str, Any], override_mode: str | None = None) -> 
         "selected_modules": selection_result.target_modules,
         "selection_strategy": selection_result.selection_strategy,
         "selection_budget": selection_result.selection_budget,
-        "loss_weights": {
-            "kl_weight": config["loss"]["kl_weight"],
-            "delta_weight": config["loss"]["delta_weight"],
-            "preserve_weight": config["loss"]["preserve_weight"],
-        },
+        "loss_weights": _build_loss_report(config),
         "dataset_summary": dataset_summary,
         "eval_summary_path": prediction_path or selection_debug_path,
         "notes": {
@@ -358,6 +392,8 @@ def run_experiment(config: dict[str, Any], override_mode: str | None = None) -> 
                 "device": config["run"]["device"],
             },
             "selection_notes": selection_result.notes,
+            "max_trainable_grad_norm": max_trainable_grad_norm,
+            "nonzero_grad_steps": nonzero_grad_steps,
         },
     }
     validate_result_schema(result)
