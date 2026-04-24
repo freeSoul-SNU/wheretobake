@@ -1,11 +1,13 @@
 defaults:
   - ../base_smoke.yaml
   - ../dataset/longform_prompt_bake.yaml
-  - ../models/tiny_gpt2.yaml
+  - ../models/distilgpt2.yaml
 
 run:
-  run_name: prompt_similarity_longform
+  run_name: prompt_similarity_longform_distilgpt2
   mode: localization_only
+  device: cpu
+  dtype: float32
 
 baseline:
   name: promptbake_kl
@@ -28,10 +30,10 @@ localization:
     - c_attn
     - c_proj
     - c_fc
-  max_records: 36
-  output_prefix: outputs/localization/prompt_similarity_longform
+  max_records: 18
+  output_prefix: outputs/localization/prompt_similarity_longform_distilgpt2
 
 output:
-  output_dir: outputs/prompt_similarity_longform
+  output_dir: outputs/prompt_similarity_longform_distilgpt2
   save_resolved_config: true
   save_predictions: false

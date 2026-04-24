@@ -29,8 +29,16 @@ def main() -> None:
     args = build_parser().parse_args()
     config = load_config(args.config)
     examples, module_names = collect_prompt_deltas(config)
-    alpha = config.get("localization", {}).get("alpha", 0.5)
-    report = compute_similarity_report(examples, module_names, alpha=alpha)
+    localization_config = config.get("localization", {})
+    alpha = localization_config.get("alpha", 0.5)
+    report = compute_similarity_report(
+        examples,
+        module_names,
+        alpha=alpha,
+        pooling_strategy=localization_config.get("representation_pooling", "response_last_k_concat"),
+        response_last_k=localization_config.get("response_last_k", 4),
+        causal_metric=localization_config.get("causal_metric", "response_region_kl"),
+    )
     output_prefix = args.output_prefix or config.get("localization", {}).get(
         "output_prefix",
         "outputs/localization/prompt_similarity",
@@ -52,4 +60,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

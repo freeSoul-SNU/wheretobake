@@ -1,0 +1,16 @@
+data:
+  train_path: data/datasets/cross_function_v1/train.jsonl
+  valid_path: data/datasets/cross_function_v1/valid.jsonl
+  test_path: data/datasets/cross_function_v1/test.jsonl
+  preserve_path: data/datasets/cross_function_v1/preserve.jsonl
+  max_source_length: 384
+  max_target_length: 96
+  prompt_family_spec_path: data/prompt_families/prompt_family_cross_function_v1.yaml
+  input_template_name: longform_default
+
+eval:
+  paraphrase_split: all
+  valid_paraphrase_split: seen
+  max_eval_batches: 16
+  max_new_tokens: 96
+  style_word_limit: 48

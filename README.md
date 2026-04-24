@@ -104,6 +104,19 @@ PYTHONPATH=src python3 -m where_to_bake.run --config configs/baselines/promptbak
 `transformers`의 최신 보안 정책 때문에, 이 저장소의 기본 smoke config는 모델을 `safetensors` 형식으로만 로드하도록 설정되어 있다.
 만약 특정 모델이 `safetensors`를 제공하지 않으면, `torch>=2.6`으로 올리거나 `safetensors`가 있는 모델로 바꾸는 편이 안전하다.
 
+### Conda 테스트 환경
+
+`conda`로 재현 가능한 테스트 환경을 만들려면:
+
+```bash
+bash scripts/setup_conda_env.sh
+conda activate ./.conda/where_to_bake
+```
+
+이 환경은 `environment.yml`을 기준으로 만들며, 실제 패키지 버전은 `requirements.txt`를 따른다.
+기본 타깃은 Python `3.11`이고, 테스트용 conda 환경은 디스크 사용량을 줄이기 위해 **CPU-first PyTorch**로 맞춰 두었다.
+GPU 학습 실험은 이후 별도 CUDA 환경에서 진행하는 편이 안전하다.
+
 ### Long-Form Dataset 생성
 
 ```bash
@@ -150,6 +163,50 @@ PYTHONPATH=src python3 scripts/run_prompt_similarity.py --config configs/baselin
 
 - `outputs/localization/prompt_similarity_longform.json`
 - `outputs/localization/prompt_similarity_longform.csv`
+- `outputs/localization/prompt_similarity_longform.analysis.json`
+
+`conda` 환경에서 한 번에 실행하려면:
+
+```bash
+bash scripts/run_stage_m2_conda.sh
+```
+
+더 큰 모델로 같은 점검을 해보려면:
+
+```bash
+PYTHONPATH=src python3 scripts/run_prompt_similarity.py --config configs/baselines/prompt_similarity_longform_distilgpt2.yaml
+PYTHONPATH=src python3 scripts/analyze_prompt_similarity.py --input outputs/localization/prompt_similarity_longform_distilgpt2.json
+```
+
+현재 M2 report에는 다음이 포함된다.
+
+- `within_family_consistency`
+- `across_family_similarity`
+- `stability_score`
+- `causal_score`
+- `combined_score = stability_score * causal_score`
+
+현재 `causal_score`는 각 module의 prompt-induced delta를 ablation했을 때
+teacher의 마지막 token logits가 얼마나 흔들리는지 보는 `L2 shift` proxy다.
+
+기능적으로 더 다른 system-prompt family를 점검하려면:
+
+```bash
+bash scripts/run_stage_m2_cross_function_conda.sh
+```
+
+이 benchmark는 같은 passage에 대해 아래처럼 더 다른 기능을 요구한다.
+
+- `summary`
+- `json_extract`
+- `topic_label`
+- `action_items`
+
+관련 파일:
+
+- `data/prompt_families/prompt_family_cross_function_v1.yaml`
+- `data/source_corpus/cross_function_seed_v1.yaml`
+- `configs/baselines/prompt_similarity_cross_function_distilgpt2.yaml`
 
 ### Stage 실행 스크립트
 
@@ -175,7 +232,8 @@ bash scripts/run_stage.sh m4
 
 - `m0`: 최소 smoke baseline 실행
 - `m1`: long-form dataset 생성, main baseline 일부 비교 실행, summary 생성
-- `m2`, `m3`: 아직 미구현 stage라 안내 메시지와 함께 종료
+- `m2`: prompt similarity + causal proxy 분석 실행
+- `m3`: 아직 미구현 stage라 안내 메시지와 함께 종료
 - `m4`: 현재 가능한 result summary 자동화만 수행
 
 ---

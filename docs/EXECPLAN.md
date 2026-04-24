@@ -89,9 +89,78 @@
   - [x] within-family similarity 집계 추가
   - [x] across-family similarity 집계 추가
   - [x] preview stability score 저장 추가
-  - [ ] causal score 추가
+  - [x] causal score proxy 추가
 - 완료 기준:
   - 같은 family prompt와 다른 family prompt의 유사도 차이를 JSON/CSV로 저장할 수 있다.
+
+### 2026-04-23 M2 strengthening
+
+- 배경:
+  - 첫 번째 M2 실행에서는 일부 family만 약한 신호가 보였고, prompt 수와 causal 근거가 부족해 다음 단계로 바로 넘어가기 어려웠다.
+- 목표:
+  - prompt family 표본을 늘리고, module delta ablation 기반의 최소 causal score를 추가해 M2 해석력을 높인다.
+- 단계별 체크리스트:
+  - [x] long-form prompt family paraphrase 수 확대
+  - [x] `compute_causal` 옵션 추가
+  - [x] module별 causal score proxy 구현
+  - [x] combined score 계산 추가
+  - [x] distilgpt2 기반 richer config 추가
+  - [x] strengthened M2 결과 재해석
+- 완료 기준:
+  - M2 report에 `causal_score`와 `combined_score`가 포함된다.
+  - 더 넓은 prompt family 표본에서 M2 산출물이 다시 생성된다.
+
+### 2026-04-23 cross-function benchmark for M2
+
+- 배경:
+  - 기존 long-form family는 모두 summarization 계열이라 across-family similarity가 높게 남을 가능성이 컸다.
+- 목표:
+  - 기능적으로 더 다른 system-prompt family를 추가해, M2가 style 변화가 아니라 function 변화에도 반응하는지 점검한다.
+- 단계별 체크리스트:
+  - [x] cross-function prompt family spec 추가
+  - [x] cross-function seed corpus 추가
+  - [x] cross-function dataset config 추가
+  - [x] cross-function distilgpt2 localization config 추가
+  - [x] conda runner 추가
+  - [x] 실제 실행 및 결과 분석
+- 완료 기준:
+  - `summary`, `json_extract`, `topic_label`, `action_items` family에 대해 M2 report가 생성된다.
+
+### 2026-04-23 conda verification for M2
+
+- 배경:
+  - 다음 단계로 넘어가기 전에, M2 similarity를 실제 환경에서 직접 한 번 돌리고 결과를 해석할 수 있어야 한다.
+- 목표:
+  - conda 기반 테스트 환경을 추가하고, M2 실행과 분석을 재현 가능한 스크립트로 묶는다.
+- 단계별 체크리스트:
+  - [x] `environment.yml` 추가
+  - [x] conda setup script 추가
+  - [x] M2 conda runner 추가
+  - [x] similarity 결과 분석 script 추가
+  - [x] conda 환경에서 실제 실행 검증
+- 완료 기준:
+  - `bash scripts/run_stage_m2_conda.sh`로 dataset 생성, similarity 실행, analysis JSON 생성까지 이어진다.
+- 리스크:
+  - conda/pip 네트워크 환경과 Hugging Face cache 상태에 따라 첫 실행 시간이 길 수 있다.
+
+### 2026-04-24 M2 metric correction
+
+- 배경:
+  - 기존 M2는 sequence 전체를 token 평균으로 강하게 압축했고, causal proxy도 마지막 token의 logits 변화만 봐서 해석이 거칠었다.
+- 목표:
+  - 응답 구간(response region) 기준 representation pooling과 sequence-level causal metric으로 M2 해석력을 높인다.
+- 단계별 체크리스트:
+  - [x] response-region hidden 추출 추가
+  - [x] pooling strategy를 config로 분리
+  - [x] sequence-level response-region KL causal metric 추가
+  - [x] stability/causal 정규화 기반 `selection_score` 추가
+  - [x] cross-function M2 재실행 및 결과 재확인
+- 완료 기준:
+  - M2 report가 prefix 평균 대신 response-region 기준으로 생성된다.
+  - causal score가 마지막 token 1개가 아니라 response token 전체에 대한 KL 변화로 계산된다.
+  - family별 top module ranking에 `selection_score`가 포함된다.
+- 리스크:
+  - 여전히 full causal patching은 아니므로, 최종 selective placement 근거로 바로 쓰기에는 부족하다.
 
 ---
 

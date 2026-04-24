@@ -14,20 +14,50 @@ families:
         paraphrase_split: seen
         qc_status: approved
         notes: concise train paraphrase
+      - prompt_id: concise_long_train_003
+        prompt_text: State the main takeaway as briefly as possible.
+        split: train
+        paraphrase_split: seen
+        qc_status: approved
+        notes: concise train paraphrase
+      - prompt_id: concise_long_train_004
+        prompt_text: Limit the summary to the core result and nothing more.
+        split: train
+        paraphrase_split: seen
+        qc_status: approved
+        notes: concise train paraphrase
       - prompt_id: concise_long_valid_001
         prompt_text: Provide a short summary focused on the key outcome.
         split: valid
         paraphrase_split: seen
         qc_status: approved
         notes: concise valid prompt
+      - prompt_id: concise_long_valid_002
+        prompt_text: Capture the key message in a very short summary.
+        split: valid
+        paraphrase_split: seen
+        qc_status: approved
+        notes: concise valid paraphrase
       - prompt_id: concise_long_test_seen_001
         prompt_text: Respond with a compact summary of the main point.
         split: test
         paraphrase_split: seen
         qc_status: approved
         notes: concise test seen
+      - prompt_id: concise_long_test_seen_002
+        prompt_text: Write a lean summary containing only the essential point.
+        split: test
+        paraphrase_split: seen
+        qc_status: approved
+        notes: concise test seen
       - prompt_id: concise_long_test_unseen_001
         prompt_text: Reduce the passage to the shortest accurate summary.
+        split: test
+        paraphrase_split: unseen
+        qc_status: approved
+        notes: concise test unseen
+      - prompt_id: concise_long_test_unseen_002
+        prompt_text: Compress the passage into the briefest accurate takeaway.
         split: test
         paraphrase_split: unseen
         qc_status: approved
@@ -47,20 +77,50 @@ families:
         paraphrase_split: seen
         qc_status: approved
         notes: formal train paraphrase
+      - prompt_id: formal_long_train_003
+        prompt_text: Deliver the summary in a formal register.
+        split: train
+        paraphrase_split: seen
+        qc_status: approved
+        notes: formal train paraphrase
+      - prompt_id: formal_long_train_004
+        prompt_text: Prepare a summary using professional wording and tone.
+        split: train
+        paraphrase_split: seen
+        qc_status: approved
+        notes: formal train paraphrase
       - prompt_id: formal_long_valid_001
         prompt_text: Write a concise but formal summary.
         split: valid
         paraphrase_split: seen
         qc_status: approved
         notes: formal valid prompt
+      - prompt_id: formal_long_valid_002
+        prompt_text: Provide the main point in formal prose.
+        split: valid
+        paraphrase_split: seen
+        qc_status: approved
+        notes: formal valid paraphrase
       - prompt_id: formal_long_test_seen_001
         prompt_text: Compose the summary in formal language.
         split: test
         paraphrase_split: seen
         qc_status: approved
         notes: formal test seen
+      - prompt_id: formal_long_test_seen_002
+        prompt_text: Write the summary as a professional briefing sentence.
+        split: test
+        paraphrase_split: seen
+        qc_status: approved
+        notes: formal test seen
       - prompt_id: formal_long_test_unseen_001
         prompt_text: Present the main findings in a professional register.
+        split: test
+        paraphrase_split: unseen
+        qc_status: approved
+        notes: formal test unseen
+      - prompt_id: formal_long_test_unseen_002
+        prompt_text: Frame the summary in polished formal language.
         split: test
         paraphrase_split: unseen
         qc_status: approved
@@ -80,14 +140,38 @@ families:
         paraphrase_split: seen
         qc_status: approved
         notes: step train paraphrase
+      - prompt_id: step_long_train_003
+        prompt_text: Lay out the summary as a sequence of short steps.
+        split: train
+        paraphrase_split: seen
+        qc_status: approved
+        notes: step train paraphrase
+      - prompt_id: step_long_train_004
+        prompt_text: Organize the main points into ordered stages.
+        split: train
+        paraphrase_split: seen
+        qc_status: approved
+        notes: step train paraphrase
       - prompt_id: step_long_valid_001
         prompt_text: Explain the passage through clear ordered steps.
         split: valid
         paraphrase_split: seen
         qc_status: approved
         notes: step valid prompt
+      - prompt_id: step_long_valid_002
+        prompt_text: Present the summary as a short ordered list of steps.
+        split: valid
+        paraphrase_split: seen
+        qc_status: approved
+        notes: step valid paraphrase
       - prompt_id: step_long_test_seen_001
         prompt_text: Break the summary into numbered stages.
+        split: test
+        paraphrase_split: seen
+        qc_status: approved
+        notes: step test seen
+      - prompt_id: step_long_test_seen_002
+        prompt_text: Turn the passage into a numbered sequence of main stages.
         split: test
         paraphrase_split: seen
         qc_status: approved
@@ -98,4 +182,9 @@ families:
         paraphrase_split: unseen
         qc_status: approved
         notes: step test unseen
-
+      - prompt_id: step_long_test_unseen_002
+        prompt_text: Rewrite the core points as a brief ordered process.
+        split: test
+        paraphrase_split: unseen
+        qc_status: approved
+        notes: step test unseen

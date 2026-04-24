@@ -49,6 +49,20 @@ generator가 하는 일:
 - 같은 입력에 대해 `concise`, `formal`, `step_by_step` target을 붙인다.
 - train/valid/test/preserve JSONL을 생성한다.
 
+같은 generator는 cross-function benchmark에도 그대로 쓴다.
+
+- prompt family spec: `data/prompt_families/prompt_family_cross_function_v1.yaml`
+- source corpus: `data/source_corpus/cross_function_seed_v1.yaml`
+
+여기서는 같은 passage에 대해
+
+- `summary`
+- `json_extract`
+- `topic_label`
+- `action_items`
+
+처럼 기능이 더 다른 target을 붙인다.
+
 ---
 
 ## 4. teacher/student 입력은 어떻게 다르게 들어가는가
@@ -136,15 +150,16 @@ student 입력:
 
 하지만 지금은 아직 아래가 없다.
 
-- `within_family_consistency`
-- `across_family_similarity`
-- `stability_score`
-- `causal_score`
+- full localization cache
+- selection loop 재주입
+- 최종 selective LoRA placement
+- full causal patching
 
 그래서 현재 저장소는:
 
 - "prompt baking baseline 코드베이스"
 - "비교 실험용 harness"
+- "M2 관찰용 localization 도구"
 
 까지는 왔지만,
 
@@ -163,20 +178,25 @@ student 입력:
 하는 일:
 
 1. 같은 입력(source)에 대해 여러 prompt를 읽는다.
-2. base model의 무프롬프트 내부 출력과 teacher prompted 내부 출력을 비교한다.
-3. 각 module에서 `delta = teacher - base` 를 만든다.
-4. 같은 family prompt끼리 cosine similarity를 계산한다.
-5. 다른 family prompt끼리 cosine similarity를 계산한다.
-6. `within - alpha * across` 형태의 preview stability score를 저장한다.
+2. teacher/base 둘 다 `prefix + target` 형태로 teacher-forced sequence를 만든다.
+3. 각 module에서 **정답이 생성되는 응답 구간 토큰들**의 hidden state만 뽑는다.
+4. 이 응답 구간 hidden state를 `response_mean`, `response_last`, `response_last_k_mean`, `response_last_k_concat` 중 하나로 pooling한다.
+5. 각 module에서 `delta = teacher - base` 를 만든다.
+6. 같은 family prompt끼리 cosine similarity를 계산한다.
+7. 다른 family prompt끼리 cosine similarity를 계산한다.
+8. `within - alpha * across` 형태의 preview stability score를 저장한다.
+9. teacher 응답 구간 hidden에서 base-relative delta를 빼는 ablation을 걸고, 응답 구간 logits KL 변화량으로 `causal_score` proxy를 계산한다.
+10. family 내부 z-score로 정규화한 `stability`와 `log1p(causal)`를 더해 ranking용 `selection_score`를 만든다.
 
 즉 이 도구는
 
 - "유사한 prompt일 때 내부 변화가 실제로 비슷한가?"
 - "다른 prompt family일 때는 덜 비슷한가?"
+- "이 module의 prompt-induced 방향을 응답 구간 전체에서 없애면 teacher 분포가 실제로 흔들리는가?"
 
 를 확인하기 위한 것이다.
 
 중요:
 
-- 이건 아직 causal score가 없다.
-- 따라서 최종 localization 결론이 아니라 **관찰용/디버깅용 M2 최소 도구**다.
+- 이 causal score는 여전히 최소 proxy일 뿐이다.
+- 따라서 여전히 최종 localization 결론이 아니라 **관찰용/디버깅용 M2 도구**다.

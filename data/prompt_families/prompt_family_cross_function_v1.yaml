@@ -1,0 +1,229 @@
+families:
+  - family_name: summary
+    description: Produce a brief summary of the passage.
+    prompts:
+      - prompt_id: summary_train_001
+        prompt_text: Summarize the passage in one or two concise sentences.
+        split: train
+        paraphrase_split: seen
+        qc_status: approved
+        notes: summary train prompt
+      - prompt_id: summary_train_002
+        prompt_text: Give a short summary containing only the main result.
+        split: train
+        paraphrase_split: seen
+        qc_status: approved
+        notes: summary train paraphrase
+      - prompt_id: summary_train_003
+        prompt_text: State the central takeaway briefly.
+        split: train
+        paraphrase_split: seen
+        qc_status: approved
+        notes: summary train paraphrase
+      - prompt_id: summary_valid_001
+        prompt_text: Write a compact summary of the passage.
+        split: valid
+        paraphrase_split: seen
+        qc_status: approved
+        notes: summary valid prompt
+      - prompt_id: summary_valid_002
+        prompt_text: Provide the key point in a short summary.
+        split: valid
+        paraphrase_split: seen
+        qc_status: approved
+        notes: summary valid paraphrase
+      - prompt_id: summary_test_seen_001
+        prompt_text: Respond with a brief summary of the main point.
+        split: test
+        paraphrase_split: seen
+        qc_status: approved
+        notes: summary test seen
+      - prompt_id: summary_test_seen_002
+        prompt_text: Reduce the passage to a concise summary.
+        split: test
+        paraphrase_split: seen
+        qc_status: approved
+        notes: summary test seen
+      - prompt_id: summary_test_unseen_001
+        prompt_text: Compress the passage into a short accurate overview.
+        split: test
+        paraphrase_split: unseen
+        qc_status: approved
+        notes: summary test unseen
+      - prompt_id: summary_test_unseen_002
+        prompt_text: Capture the full point in the shortest faithful summary.
+        split: test
+        paraphrase_split: unseen
+        qc_status: approved
+        notes: summary test unseen
+  - family_name: json_extract
+    description: Extract the passage into a strict JSON record.
+    prompts:
+      - prompt_id: json_train_001
+        prompt_text: Return a JSON object with keys topic, outcome, and risk.
+        split: train
+        paraphrase_split: seen
+        qc_status: approved
+        notes: json train prompt
+      - prompt_id: json_train_002
+        prompt_text: Respond only with JSON using the fields topic, outcome, and risk.
+        split: train
+        paraphrase_split: seen
+        qc_status: approved
+        notes: json train paraphrase
+      - prompt_id: json_train_003
+        prompt_text: Output a JSON record with topic, outcome, and risk only.
+        split: train
+        paraphrase_split: seen
+        qc_status: approved
+        notes: json train paraphrase
+      - prompt_id: json_valid_001
+        prompt_text: Produce strict JSON with topic, outcome, and risk.
+        split: valid
+        paraphrase_split: seen
+        qc_status: approved
+        notes: json valid prompt
+      - prompt_id: json_valid_002
+        prompt_text: Write the answer as JSON and include topic, outcome, and risk.
+        split: valid
+        paraphrase_split: seen
+        qc_status: approved
+        notes: json valid paraphrase
+      - prompt_id: json_test_seen_001
+        prompt_text: Return only JSON with fields topic, outcome, and risk.
+        split: test
+        paraphrase_split: seen
+        qc_status: approved
+        notes: json test seen
+      - prompt_id: json_test_seen_002
+        prompt_text: Format the answer as a JSON object with topic, outcome, and risk.
+        split: test
+        paraphrase_split: seen
+        qc_status: approved
+        notes: json test seen
+      - prompt_id: json_test_unseen_001
+        prompt_text: Emit a JSON-only response with topic, outcome, and risk keys.
+        split: test
+        paraphrase_split: unseen
+        qc_status: approved
+        notes: json test unseen
+      - prompt_id: json_test_unseen_002
+        prompt_text: Serialize the result as JSON with topic, outcome, and risk.
+        split: test
+        paraphrase_split: unseen
+        qc_status: approved
+        notes: json test unseen
+  - family_name: topic_label
+    description: Classify the passage into one topic label.
+    prompts:
+      - prompt_id: label_train_001
+        prompt_text: Reply with one topic label only.
+        split: train
+        paraphrase_split: seen
+        qc_status: approved
+        notes: label train prompt
+      - prompt_id: label_train_002
+        prompt_text: Classify the passage and output one label with no explanation.
+        split: train
+        paraphrase_split: seen
+        qc_status: approved
+        notes: label train paraphrase
+      - prompt_id: label_train_003
+        prompt_text: Choose the single best topic label and output only that label.
+        split: train
+        paraphrase_split: seen
+        qc_status: approved
+        notes: label train paraphrase
+      - prompt_id: label_valid_001
+        prompt_text: Return a single topic category label.
+        split: valid
+        paraphrase_split: seen
+        qc_status: approved
+        notes: label valid prompt
+      - prompt_id: label_valid_002
+        prompt_text: Output only the matching topic label.
+        split: valid
+        paraphrase_split: seen
+        qc_status: approved
+        notes: label valid paraphrase
+      - prompt_id: label_test_seen_001
+        prompt_text: Respond with one category label only.
+        split: test
+        paraphrase_split: seen
+        qc_status: approved
+        notes: label test seen
+      - prompt_id: label_test_seen_002
+        prompt_text: Give only the topic label that best fits the passage.
+        split: test
+        paraphrase_split: seen
+        qc_status: approved
+        notes: label test seen
+      - prompt_id: label_test_unseen_001
+        prompt_text: Map the passage to a single topic tag and output that tag only.
+        split: test
+        paraphrase_split: unseen
+        qc_status: approved
+        notes: label test unseen
+      - prompt_id: label_test_unseen_002
+        prompt_text: Select one topic label and print only the label.
+        split: test
+        paraphrase_split: unseen
+        qc_status: approved
+        notes: label test unseen
+  - family_name: action_items
+    description: Extract action items or recommended next steps.
+    prompts:
+      - prompt_id: action_train_001
+        prompt_text: List the recommended next actions as short bullet points.
+        split: train
+        paraphrase_split: seen
+        qc_status: approved
+        notes: action train prompt
+      - prompt_id: action_train_002
+        prompt_text: Extract the action items and present them as bullets.
+        split: train
+        paraphrase_split: seen
+        qc_status: approved
+        notes: action train paraphrase
+      - prompt_id: action_train_003
+        prompt_text: Write the next steps from the passage as bullet points.
+        split: train
+        paraphrase_split: seen
+        qc_status: approved
+        notes: action train paraphrase
+      - prompt_id: action_valid_001
+        prompt_text: Provide the recommended actions as brief bullets.
+        split: valid
+        paraphrase_split: seen
+        qc_status: approved
+        notes: action valid prompt
+      - prompt_id: action_valid_002
+        prompt_text: Pull out the next steps and list them as bullets.
+        split: valid
+        paraphrase_split: seen
+        qc_status: approved
+        notes: action valid paraphrase
+      - prompt_id: action_test_seen_001
+        prompt_text: Return the action items as a short bullet list.
+        split: test
+        paraphrase_split: seen
+        qc_status: approved
+        notes: action test seen
+      - prompt_id: action_test_seen_002
+        prompt_text: Present the recommended next steps in bullet form.
+        split: test
+        paraphrase_split: seen
+        qc_status: approved
+        notes: action test seen
+      - prompt_id: action_test_unseen_001
+        prompt_text: Extract only the next actions and format them as bullets.
+        split: test
+        paraphrase_split: unseen
+        qc_status: approved
+        notes: action test unseen
+      - prompt_id: action_test_unseen_002
+        prompt_text: Turn the recommendations into a brief bullet list.
+        split: test
+        paraphrase_split: unseen
+        qc_status: approved
+        notes: action test unseen

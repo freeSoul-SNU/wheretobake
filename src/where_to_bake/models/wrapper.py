@@ -76,7 +76,7 @@ def load_base_models(config: dict[str, Any], auto_model: Any) -> tuple[Any, Any]
     model_load_kwargs = {
         "trust_remote_code": model_config.get("trust_remote_code", False),
         "use_safetensors": model_config.get("use_safetensors", True),
-        "torch_dtype": _resolve_torch_dtype(torch, config.get("run", {}).get("dtype")),
+        "dtype": _resolve_torch_dtype(torch, config.get("run", {}).get("dtype")),
     }
     teacher_model = auto_model.from_pretrained(
         model_config["base_model_name_or_path"],
